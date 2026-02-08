@@ -1,0 +1,29 @@
+{
+  "id": "zesty-dispatcher",
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "default": true
+      },
+      "debug": {
+        "type": "boolean",
+        "default": false
+      },
+      "routerModel": {
+        "type": "string",
+        "default": "github-copilot/gpt-5-mini",
+        "description": "The lightweight model used for semantic skill dispatching."
+      },
+      "exemptions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": ["zesty-*", "qmd"],
+        "description": "List of skills to always include. Supports wildcards (e.g., 'zesty-*')."
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "zesty-dispatcher",
+  "version": "1.0.0",
+  "description": "A smart skill dispatcher for OpenClaw to reduce context bloat.",
+  "main": "index.ts",
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.13"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
