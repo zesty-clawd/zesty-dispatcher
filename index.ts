@@ -176,6 +176,15 @@ const zestyDispatcherPlugin = {
             bootstrapFiles.length = 0;
             bootstrapFiles.push(...keptFiles);
 
+            // 5. Prompt Injection: Explicitly instruct the agent to use the selected skills.
+            if (selected.length > 0) {
+                const injection = {
+                    path: "zesty-dispatcher-instruction.md",
+                    content: `\n\n[CRITICAL INSTRUCTION]\nAlways prioritize using the skills listed in <available_skills> above. Before attempting a task with general knowledge, check if a relevant skill exists and strictly follow its SKILL.md instructions. Current relevant skills for this turn: ${selected.join(", ")}.\n`
+                };
+                bootstrapFiles.push(injection);
+            }
+
             if (removedCount > 0) {
                 api.logger.info(`[zesty-dispatcher] Auto-filter: "${query.substring(0, 30)}..." -> Kept ${selected.length} skills, Removed ${removedCount} files.`);
             }
