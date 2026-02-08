@@ -39,6 +39,25 @@
 openclaw gateway restart
 ```
 
+### 配置選項 (Configuration)
+
+預設情況下，Dispatcher 會在後台透過 `agent:bootstrap` 自動運作。若需手動調用工具，請在 `openclaw.json` 中開啟：
+
+```json
+"plugins": {
+  "entries": {
+    "zesty-dispatcher": {
+      "enabled": true,
+      "config": {
+        "enableTool": true,                // 是否顯示手動調度工具 (預設: false)
+        "routerModel": "github-copilot/gpt-5-mini", // 用於語義篩選的模型
+        "exemptions": ["zesty-*", "qmd"]   // 豁免清單，支援前綴通配符
+      }
+    }
+  }
+}
+```
+
 ### 調用方式
 
 Agent 可直接調用 `dispatch_skills` 工具：
