@@ -188,54 +188,60 @@ const zestyDispatcherPlugin = {
     // --------------------------------------------------------------------------------
     // TOOL: dispatch_skills
     // Manual trigger for debugging or explicit use.
+    // Default disabled to reduce clutter; enable in config.
     // --------------------------------------------------------------------------------
-    api.registerTool({
-      name: "dispatch_skills",
-      label: "Dispatch Skills",
-      description: "Analyze the user's request and recommend the most relevant skills to load.",
-      parameters: DispatchSkillsSchema,
-      execute: async (_toolCallId: string, params: { query: string }) => {
-        const { query } = params;
-        
-        try {
-          // 1. Scan skills directory to get ALL candidates (since we are not in bootstrap context)
-          const skillsDir = path.join(os.homedir(), ".openclaw", "skills");
-          let entries;
-          try {
-            entries = await fs.readdir(skillsDir, { withFileTypes: true });
-          } catch (err) {
-             return { content: [{ type: "text", text: "Error: Could not access skills directory." }] };
+    if (api.pluginConfig?.enableTool) {
+        api.registerTool({
+          name: "dispatch_skills",
+          label: "Dispatch Skills",
+          description: "Analyze the user's request and recommend the most relevant skills to load.",
+          parameters: DispatchSkillsSchema,
+          execute: async (_toolCallId: string, params: { query: string }) => {
+            const { query } = params;
+            
+            try {
+              // 1. Scan skills directory to get ALL candidates (since we are not in bootstrap context)
+              const skillsDir = path.join(os.homedir(), ".openclaw", "skills");
+              let entries;
+              try {
+                entries = await fs.readdir(skillsDir, { withFileTypes: true });
+              } catch (err) {
+                 return { content: [{ type: "text", text: "Error: Could not access skills directory." }] };
+              }
+    
+              const allSkills = entries
+                .filter(e => e.isDirectory() && !e.name.startsWith("."))
+                .map(e => e.name);
+    
+              // 2. Run Logic
+              const { selected, strategies } = await selectRelevantSkills(api, query, allSkills);
+    
+              return {
+                content: [{ 
+                  type: "text", 
+                  text: JSON.stringify({
+                    query,
+                    strategies,
+                    recommended_skills: selected,
+                    count: selected.length
+                  }, null, 2)
+                }]
+              };
+    
+            } catch (error: any) {
+              api.logger.error(`[zesty-dispatcher] Tool Error: ${error.message}`);
+              return {
+                content: [{ type: "text", text: `Error processing dispatch: ${error.message}` }]
+              };
+            }
           }
+        });
+        api.logger.info("[zesty-dispatcher] Tool 'dispatch_skills' registered.");
+    } else {
+        api.logger.debug("[zesty-dispatcher] Tool 'dispatch_skills' disabled by config.");
+    }
 
-          const allSkills = entries
-            .filter(e => e.isDirectory() && !e.name.startsWith("."))
-            .map(e => e.name);
-
-          // 2. Run Logic
-          const { selected, strategies } = await selectRelevantSkills(api, query, allSkills);
-
-          return {
-            content: [{ 
-              type: "text", 
-              text: JSON.stringify({
-                query,
-                strategies,
-                recommended_skills: selected,
-                count: selected.length
-              }, null, 2)
-            }]
-          };
-
-        } catch (error: any) {
-          api.logger.error(`[zesty-dispatcher] Tool Error: ${error.message}`);
-          return {
-            content: [{ type: "text", text: `Error processing dispatch: ${error.message}` }]
-          };
-        }
-      }
-    });
-
-    api.logger.info("[zesty-dispatcher] Hook & Tool registered.");
+    api.logger.info("[zesty-dispatcher] Plugin loaded.");
   }
 };
 

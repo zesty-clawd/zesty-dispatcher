@@ -7,6 +7,11 @@
         "type": "boolean",
         "default": true
       },
+      "enableTool": {
+        "type": "boolean",
+        "default": false,
+        "description": "Whether to register the manual dispatch_skills tool."
+      },
       "debug": {
         "type": "boolean",
         "default": false
