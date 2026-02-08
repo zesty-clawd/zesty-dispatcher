@@ -183,7 +183,7 @@ const zestyDispatcherPlugin = {
         } catch (error: any) {
             api.logger.error(`[zesty-dispatcher] Bootstrap hook error: ${error.message}`);
         }
-    });
+    }, { name: "zesty-dispatcher-bootstrap" });
 
     // --------------------------------------------------------------------------------
     // TOOL: dispatch_skills
