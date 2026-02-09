@@ -17,17 +17,27 @@ interface SkillMetadata {
  */
 function parseSkillMetadata(content: string): SkillMetadata {
     const meta: SkillMetadata = { name: "", description: "" };
-    const frontmatterMatch = content.match(/^---\s*([\s\S]*?)\s*---/);
+    // More lenient regex: don't anchor to start of string, handle potential BOM/spaces
+    const frontmatterMatch = content.match(/---\s*([\s\S]*?)\s*---/);
     
     if (frontmatterMatch) {
-        const lines = frontmatterMatch[1].split("\n");
+        const lines = frontmatterMatch[1].split(/\r?\n/);
         for (const line of lines) {
-            const [key, ...valParts] = line.split(":");
-            if (key && valParts.length > 0) {
-                const k = key.trim().toLowerCase();
-                const v = valParts.join(":").trim();
-                if (k === "name") meta.name = v;
-                if (k === "description") meta.description = v;
+            const trimmedLine = line.trim();
+            if (!trimmedLine || trimmedLine === "---") continue;
+
+            const colonIndex = trimmedLine.indexOf(":");
+            if (colonIndex !== -1) {
+                const key = trimmedLine.slice(0, colonIndex).trim().toLowerCase();
+                let value = trimmedLine.slice(colonIndex + 1).trim();
+                
+                // Remove optional surrounding quotes (common in generated YAML)
+                if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                    value = value.slice(1, -1).trim();
+                }
+                
+                if (key === "name") meta.name = value;
+                if (key === "description") meta.description = value;
             }
         }
     }
