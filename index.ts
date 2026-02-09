@@ -17,8 +17,8 @@ interface SkillMetadata {
  */
 function parseSkillMetadata(content: string): SkillMetadata {
     const meta: SkillMetadata = { name: "", description: "" };
-    // More lenient regex: don't anchor to start of string, handle potential BOM/spaces
-    const frontmatterMatch = content.match(/---\s*([\s\S]*?)\s*---/);
+    // Anchor to the start of the file, allowing for optional leading whitespace/BOM
+    const frontmatterMatch = content.match(/^\s*---\s*([\s\S]*?)\s*---/);
     
     if (frontmatterMatch) {
         const lines = frontmatterMatch[1].split(/\r?\n/);
